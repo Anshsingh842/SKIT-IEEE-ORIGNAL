@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Shorts - AI Threat Watchdog Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f0f0f;
+      color: #fff;
+      font-family: Roboto, Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top YouTube Header */
+    header {
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #272727;
+      background: #0f0f0f;
+    }
+    .yt-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .yt-badge {
+      background: #cc0000;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    /* Main Layout */
+    .shorts-layout {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Shorts Phone Container */
+    #shortsContainer {
+      width: 420px;
+      height: 85vh;
+      border-radius: 16px;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      position: relative;
+      background: #000;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    /* YouTube Short Card (matches actual ytd-reel-video-renderer) */
+    ytd-reel-video-renderer {
+      display: flex;
+      width: 100%;
+      height: 85vh;
+      scroll-snap-align: start;
+      position: relative;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 24px 20px;
+      background: #181818;
+      border-bottom: 2px solid #222;
+    }
+
+    .short-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a1a;
+      z-index: 1;
+    }
+
+    .short-overlay {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(transparent, rgba(0,0,0,0.92) 40%);
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-weight: bold;
+    }
+    #channel-name { font-weight: bold; font-size: 14px; }
+    .subscribe-btn {
+      background: #fff; color: #000; border: none; padding: 5px 12px; border-radius: 18px; font-weight: bold; font-size: 12px; cursor: pointer;
+    }
+
+    h2.title {
+      font-size: 14px;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .tags { color: #3ea6ff; font-size: 12px; }
+
+    /* Side Action Column (Like, Share, etc.) */
+    .action-col {
+      position: absolute;
+      right: -70px;
+      bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+    .action-btn {
+      width: 48px; height: 48px; border-radius: 50%; background: #272727; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer;
+    }
+    .action-label { font-size: 11px; color: #aaa; text-align: center; }
+
+    /* Navigation Arrows */
+    .nav-arrow-col {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .nav-circle-btn {
+      width: 48px; height: 48px; border-radius: 50%; background: #272727; border: 1px solid #3f3f46; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: background 0.2s;
+    }
+    .nav-circle-btn:hover { background: #3f3f46; }
+  </style>
+</head>
+<body>
+
+  <!-- Top YouTube Header -->
+  <header>
+    <div class="yt-logo">
+      <span style="color:#ff0000; font-size:24px;">▶</span>
+      <span>YouTube</span>
+      <span class="yt-badge">SHORTS</span>
+    </div>
+    <div style="font-size:12px; color:#10b981; font-weight:bold; background:#111827; padding:6px 12px; border-radius:20px; border:1px solid #1f2937;">
+      🛡️ SocialSentinel Zero-Touch Watchdog Active on this page
+    </div>
+  </header>
+
+  <!-- Main Shorts Screen -->
+  <div class="shorts-layout">
+    <div id="shortsContainer">
+
+      <!-- Short 1: Normal Gaming -->
+      <ytd-reel-video-renderer is-active id="short-1">
+        <div class="short-bg" style="background: radial-gradient(circle, #1e293b, #0f172a);">
+          <div style="font-size:60px;">🎮</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar">G</div>
+            <span id="channel-name">@GamerPro_India</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Insane sniper trickshot in new battle royale match! Double kill clutch moment.</h2>
+          <div class="tags">#gaming #shorts #clutch #pubg</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 2: SCAM REEL (Lottery OTP Scam) -->
+      <ytd-reel-video-renderer id="short-2">
+        <div class="short-bg" style="background: radial-gradient(circle, #450a0a, #180505);">
+          <div style="font-size:60px;">💰</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#dc2626;">₹</div>
+            <span id="channel-name">@Prize_Winner_Official</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Badhai ho! Aapne 25 lakh ki lottery jeeti hai. Turant apna OTP bhejo aur prize claim karo telegram link in description! #lottery #free #prize</h2>
+          <div class="tags">#lottery #prize #freemoney #claim</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 3: Normal Tech Review -->
+      <ytd-reel-video-renderer id="short-3">
+        <div class="short-bg" style="background: radial-gradient(circle, #064e3b, #022c22);">
+          <div style="font-size:60px;">📱</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#10b981;">T</div>
+            <span id="channel-name">@TechExplorer</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Top 3 Hidden Features of Android 15 that will save your battery life completely!</h2>
+          <div class="tags">#tech #android #tips #review</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 4: SCAM REEL (Bank Account KYC Phishing) -->
+      <ytd-reel-video-renderer id="short-4">
+        <div class="short-bg" style="background: radial-gradient(circle, #7f1d1d, #2a0808);">
+          <div style="font-size:60px;">🏦</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#ef4444;">!</div>
+            <span id="channel-name">@Bank_Alert_Desk</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">URGENT: Aaj raat aapka bank account band ho jayega KYC update na hone par! Turant AnyDesk download karo aur OTP verify karo. #urgent #bank</h2>
+          <div class="tags">#urgent #bank #kycupdate #warning</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 5: FAKE NEWS CONSPIRACY -->
+      <ytd-reel-video-renderer id="short-5">
+        <div class="short-bg" style="background: radial-gradient(circle, #78350f, #271306);">
+          <div style="font-size:60px;">📡</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#f59e0b;">?</div>
+            <span id="channel-name">@BreakingTruthNews</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Media nahi dikhayega! 5G tower se sabhi pakshi mar rahe hain 100% sach report leaked document samne aa gaya! #breaking #truth</h2>
+          <div class="tags">#breaking #truth #5gtower #alert</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 6: DIGITAL ARREST SCAM (ID 13) -->
+      <ytd-reel-video-renderer id="short-6">
+        <div class="short-bg" style="background: radial-gradient(circle, #3b0764, #1e0533);">
+          <div style="font-size:60px;">👮</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#8b5cf6;">CBI</div>
+            <span id="channel-name">@Special_Investigation_Unit</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Main CBI officer bol raha hu. Aapke naam par illegal parcel pakda gaya hai. Video call par rahiye, phone mat kaatna digital arrest protocol! #cbi #alert</h2>
+          <div class="tags">#cbi #illegalparcel #digitalarrest #warning</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 7: PAISE DOUBLE SCAM (ID 1) -->
+      <ytd-reel-video-renderer id="short-7">
+        <div class="short-bg" style="background: radial-gradient(circle, #064e3b, #022c22);">
+          <div style="font-size:60px;">💸</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#10b981;">₹</div>
+            <span id="channel-name">@QuickMoneySecret</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Dosto aaj main aapko ek secret bata raha hu. Mere link par click karo aur 1000 rupay lagao, 24 ghante mein 2000 wapas milenge. Pakka guarantee paise double! #paise #double</h2>
+          <div class="tags">#paise #double #guarantee #earning</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+      <!-- Short 8: ANYDESK FAKE CUSTOMER CARE SCAM (ID 11) -->
+      <ytd-reel-video-renderer id="short-8">
+        <div class="short-bg" style="background: radial-gradient(circle, #831843, #2a0815);">
+          <div style="font-size:60px;">💻</div>
+        </div>
+        <div class="short-overlay">
+          <div class="channel-row">
+            <div class="avatar" style="background:#ec4899;">🎧</div>
+            <span id="channel-name">@Customer_Refund_Desk</span>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <h2 class="title">Main customer care se bol raha hu. Apne phone mein AnyDesk download karo, main aapka refund process kar dunga turant! #refund #anydesk</h2>
+          <div class="tags">#refund #anydesk #customercare #help</div>
+        </div>
+      </ytd-reel-video-renderer>
+
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrow-col">
+      <div class="nav-circle-btn" onclick="prevShort()" title="Pichhla Short">▲</div>
+      <div class="nav-circle-btn" onclick="nextShort()" title="Agla Short">▼</div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('shortsContainer');
+    const shorts = Array.from(document.querySelectorAll('ytd-reel-video-renderer'));
+
+    function updateActiveShort() {
+      const scrollY = container.scrollTop;
+      const height = container.clientHeight || 1;
+      const currentIndex = Math.round(scrollY / height);
+
+      shorts.forEach((s, idx) => {
+        if (idx === currentIndex) s.setAttribute('is-active', '');
+        else s.removeAttribute('is-active');
+      });
+    }
+
+    container.addEventListener('scroll', updateActiveShort);
+
+    function nextShort() {
+      const scrollY = container.scrollTop;
+      const height = container.clientHeight || 1;
+      const nextIdx = Math.min(shorts.length - 1, Math.round(scrollY / height) + 1);
+      shorts[nextIdx].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(updateActiveShort, 300);
+    }
+
+    function prevShort() {
+      const scrollY = container.scrollTop;
+      const height = container.clientHeight || 1;
+      const prevIdx = Math.max(0, Math.round(scrollY / height) - 1);
+      shorts[prevIdx].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(updateActiveShort, 300);
+    }
+
+    // Keyboard Arrow navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') nextShort();
+      else if (e.key === 'ArrowUp') prevShort();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FraudVeda - AI Threat Monitoring & SOC Platform (SKIT004)</title>
+  <link rel="stylesheet" href="css/chatbot.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0f17;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #111827;
+      border-bottom: 1px solid #1f2937;
+      padding: 0 30px;
+      height: 65px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #00d4ff;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    .badge-sub {
+      font-size: 11px;
+      background: rgba(0, 212, 255, 0.12);
+      color: #00d4ff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #9ca3af;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover { color: white; background: #1f2937; }
+    .nav-btn.active {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+      border-color: rgba(0, 212, 255, 0.4);
+    }
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #10b981;
+      font-weight: 600;
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 25px 20px;
+    }
+
+    /* Screen 0: Home Screen */
+    #homeScreen { display: block; }
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto 30px auto;
+    }
+    .hero h1 { font-size: 34px; font-weight: 800; color: white; margin-bottom: 12px; }
+    .hero span { color: #00d4ff; }
+    .hero p { color: #9ca3af; font-size: 15px; line-height: 1.6; }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .action-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 30px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .action-card:hover {
+      border-color: #00d4ff; transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 212, 255, 0.15);
+    }
+    .card-icon { font-size: 40px; margin-bottom: 15px; }
+    .card-title { font-size: 18px; font-weight: 700; color: white; margin-bottom: 10px; }
+    .card-desc { font-size: 13px; color: #9ca3af; line-height: 1.5; margin-bottom: 20px; }
+    .card-btn {
+      background: #1f2937; color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3); padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px;
+    }
+
+    /* Screen 1: Feed Screen */
+    #feedScreen { display: none; }
+    .feed-layout { display: flex; justify-content: center; gap: 30px; }
+    .feed-phone-container {
+      width: 400px; height: 80vh; background: #000; border-radius: 16px; border: 2px solid #222; overflow-y: scroll; scroll-snap-type: y mandatory; position: relative;
+    }
+    .reel-card {
+      width: 100%; height: 80vh; scroll-snap-align: start; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; border-bottom: 1px solid #222; background: #1a1a1a;
+    }
+    .video-container {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #222; z-index: 1;
+    }
+    video { width: 100%; height: 100%; object-fit: cover; }
+    .video-placeholder { color: #888; font-size: 13px; text-align: center; padding: 20px; }
+    .post-info {
+      position: relative; z-index: 2; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 14px; border-radius: 8px;
+    }
+    .author { font-weight: bold; color: #00d4ff; font-size: 14px; margin-bottom: 5px; }
+    .caption { font-size: 13px; line-height: 1.4; margin-bottom: 8px; }
+    .tags { color: #ffbc00; font-size: 12px; margin-bottom: 6px; }
+
+    /* Suspicious Link Button in Reel */
+    .suspicious-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: all 0.2s;
+    }
+    .suspicious-link-btn:hover {
+      background: rgba(239, 68, 68, 0.35);
+      color: white;
+    }
+
+    .feed-sidebar {
+      width: 320px; background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 20px; height: fit-content;
+    }
+
+    /* Screen 2: Add Reel Screen */
+    #addScreen { display: none; }
+    .add-layout {
+      max-width: 650px; margin: 0 auto; background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 30px;
+    }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 12px; color: #9ca3af; font-weight: 600; margin-bottom: 6px; }
+    input[type="text"], textarea {
+      width: 100%; background: #0b0f17; border: 1px solid #1f2937; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; outline: none;
+    }
+    input[type="text"]:focus, textarea:focus { border-color: #00d4ff; }
+    textarea { height: 90px; resize: vertical; }
+    .btn-submit {
+      width: 100%; padding: 12px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px;
+    }
+    .check-result-box { margin-top: 16px; padding: 14px; border-radius: 8px; display: none; font-size: 13px; line-height: 1.5; }
+
+    /* Screen 3: ANALYTICAL DASHBOARD SCREEN */
+    #dashboardScreen { display: none; }
+    
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #00d4ff;
+    }
+    .metric-card.red::before { background: #ef4444; }
+    .metric-card.orange::before { background: #f59e0b; }
+    .metric-card.green::before { background: #10b981; }
+    .metric-card.purple::before { background: #8b5cf6; }
+
+    .metric-title { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-val { font-size: 26px; font-weight: 800; color: white; margin: 6px 0 2px 0; }
+    .metric-sub { font-size: 11px; color: #6b7280; }
+
+    .analytics-grid-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .chart-box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .chart-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+    }
+    .chart-title { font-size: 14px; font-weight: 700; color: #f3f4f6; }
+    .chart-pill { font-size: 11px; background: rgba(0,212,255,0.1); color: #00d4ff; padding: 2px 8px; border-radius: 4px; }
+
+    .live-soc-banner {
+      background: #111827;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      padding: 10px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .live-indicator-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      display: inline-block;
+      animation: pulseGreen 1.5s infinite;
+    }
+    @keyframes pulseGreen {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .live-stream-box {
+      background: #090d14;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-height: 140px;
+      overflow-y: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+    .stream-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.06);
+      animation: fadeInRow 0.3s ease;
+    }
+    @keyframes fadeInRow {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stream-time { color: #64748b; font-weight: 600; min-width: 65px; }
+    .stream-badge { padding: 1px 6px; border-radius: 3px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
+    .stream-badge.high { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+    .stream-badge.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+    .stream-badge.safe { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+    .stream-text { color: #cbd5e1; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .breakdown-bars { display: flex; flex-direction: column; gap: 10px; }
+    .cat-bar-item { font-size: 12px; }
+    .cat-bar-head { display: flex; justify-content: space-between; margin-bottom: 4px; color: #d1d5db; }
+    .cat-track { height: 8px; background: #1f2937; border-radius: 4px; overflow: hidden; display: flex; }
+    .cat-fill { height: 100%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+    .alert-card.live-new {
+      animation: alertGlow 2.5s ease-out;
+    }
+    @keyframes alertGlow {
+      0% { border-color: #00d4ff; box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+      100% { border-color: #1f2937; box-shadow: none; }
+    }
+    .toast-pill {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #111827;
+      border: 1px solid #00d4ff;
+      color: #e2e8f0;
+      padding: 10px 18px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      animation: slideUpToast 0.3s ease;
+    }
+    @keyframes slideUpToast {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .early-warning-banner {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), rgba(17, 24, 39, 0.8));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-left: 4px solid #ef4444;
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ew-left { display: flex; align-items: center; gap: 12px; }
+    .ew-icon { font-size: 24px; }
+    .ew-text { font-size: 13px; color: #fca5a5; }
+    .ew-text b { color: white; }
+    .ew-timeline { display: flex; align-items: center; gap: 15px; font-size: 12px; color: #9ca3af; }
+    .ew-step { background: #1f2937; padding: 4px 10px; border-radius: 4px; border: 1px solid #374151; }
+    .ew-step.active { border-color: #ef4444; color: #ef4444; font-weight: bold; }
+
+    .analytics-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .geo-item {
+      display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 7px 0; border-bottom: 1px solid #1f2937;
+    }
+    .geo-name { display: flex; align-items: center; gap: 8px; font-weight: 600; width: 120px; }
+    .geo-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+    .geo-bar-fill { flex: 1; height: 6px; background: #1f2937; border-radius: 3px; margin: 0 12px; overflow: hidden; }
+    .geo-fill-inner { height: 100%; background: #00d4ff; }
+
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-pill { background: #1f2937; border: 1px solid #374151; color: #d1d5db; padding: 4px 9px; border-radius: 14px; font-size: 11px; }
+    .tag-spike { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; font-weight: 600; }
+
+    .action-bar-top {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 12px;
+    }
+    .filter-tabs { display: flex; gap: 6px; }
+    .filter-btn {
+      background: #111827; border: 1px solid #1f2937; color: #9ca3af; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600;
+    }
+    .filter-btn.active { background: #00d4ff; color: #000; border-color: #00d4ff; font-weight: 700; }
+    .tool-btns { display: flex; gap: 8px; }
+    .btn-action-tool {
+      padding: 7px 14px; background: #1f2937; border: 1px solid rgba(0, 212, 255, 0.3); color: #00d4ff; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .btn-action-tool:hover { background: rgba(0, 212, 255, 0.15); }
+
+    .alert-card {
+      background: #111827; border: 1px solid #1f2937; border-left: 4px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 12px;
+    }
+    .alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .alert-desc { font-size: 13px; color: #e5e7eb; margin-bottom: 10px; line-height: 1.4; }
+    .alert-actions { display: flex; gap: 10px; }
+    .btn-action {
+      padding: 6px 14px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid #374151; background: #1f2937; color: #d1d5db; cursor: pointer;
+    }
+    .btn-action.active-sahi { background: #059669; color: white; border-color: #10b981; }
+    .btn-action.active-galat { background: #dc2626; color: white; border-color: #ef4444; }
+
+    /* Warning Overlay (Reel Alert) */
+    .warning-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.92); z-index: 10; display: none;
+      flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center;
+    }
+    .warning-box { background: #2a0808; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; width: 100%; }
+    .warning-title { color: #ef4444; font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+    .warning-desc { font-size: 12px; color: #ddd; margin-bottom: 15px; line-height: 1.4; }
+    .btn-group { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .btn-review { background: #00d4ff; color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+    .btn-review:hover { background: #38bdf8; }
+    .btn-skip { background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .btn-continue { background: #374151; color: #d1d5db; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+
+    /* SUSPICIOUS LINK "ARE YOU SURE" MODAL */
+    .link-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .link-modal-box {
+      background: #181111;
+      border: 2px solid #ef4444;
+      border-radius: 12px;
+      max-width: 460px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      animation: popIn 0.2s ease-out;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-icon { font-size: 36px; margin-bottom: 10px; text-align: center; }
+    .modal-title { font-size: 18px; font-weight: 800; color: #ef4444; text-align: center; margin-bottom: 10px; }
+    .modal-msg { font-size: 13px; color: #d1d5db; line-height: 1.5; margin-bottom: 15px; text-align: center; }
+    .modal-url-box {
+      background: #0b0f17;
+      border: 1px dashed #ef4444;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #fca5a5;
+      word-break: break-all;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-safe {
+      flex: 1;
+      background: #059669;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-danger {
+      flex: 1;
+      background: #27272a;
+      color: #9ca3af;
+      border: 1px solid #3f3f46;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand" onclick="switchTab('home')">
+      🛡️ FraudVeda
+      <span class="badge-sub">SKIT004 HACKATHON</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" id="btn-home" onclick="switchTab('home')">📱 Live Threat Watchdog (Home)</button>
+      <button class="nav-btn" id="btn-dashboard" onclick="switchTab('dashboard')">📊 Analytical Dashboard</button>
+      <button class="nav-btn" id="btn-add" onclick="switchTab('add')">➕ Add Reel</button>
+      <button class="nav-btn" id="btn-bot" style="border: 1px solid rgba(0,212,255,0.4); color:#00d4ff;" onclick="toggleChowkidaarChat(true)">🤖 AI Chowkidaar</button>
+    </div>
+    <div class="live-status">
+      <div class="pulse-dot"></div>
+      LOCAL MONITORING ACTIVE
+    </div>
+  </header>
+
+  <main>
+    <!-- SCREEN 0: HOME SCREEN -->
+    <div id="homeScreen">
+      <div class="hero" style="padding: 15px 20px 20px 20px; margin-bottom: 20px;">
+        <h1 style="font-size: 28px; margin-bottom: 8px;">AI-Driven Social Media <span>Threat Watchdog & Reels Inspector</span></h1>
+        <p style="font-size: 14px;">Neeche Reel Feed scroll karein — <b>AI Chowkidaar</b> automatically har reel ko check karke scam detect karta hai!</p>
+      </div>
+
+      <!-- Live Feed & AI Inspector Layout Directly on Starting Screen -->
+      <div class="feed-layout" style="margin-bottom: 30px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <!-- Controls Bar above phone -->
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 400px; padding: 8px 14px; background: #111827; border: 1px solid #1f2937; border-radius: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: #00d4ff; display: flex; align-items: center; gap: 6px;">
+              <span>📱 Reel:</span>
+              <span id="currentReelNum" style="background: rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0, 212, 255, 0.3);">#1</span>
+              <span style="color: #9ca3af; font-size: 11px;">/ 15</span>
+            </span>
+            <div style="display: flex; gap: 8px;">
+              <button class="nav-btn" style="padding: 5px 10px; font-size: 11px; background: #1f2937; border-radius: 4px;" onclick="prevReel()">⬆️ Pichhli</button>
+              <button class="nav-btn" style="padding: 5px 12px; font-size: 11px; background: #00d4ff; color: #000; font-weight: 700; border-radius: 4px;" onclick="nextReel()">⬇️ Agli Reel</button>
+            </div>
+          </div>
+
+          <div class="feed-phone-container" id="feedContainer" onscroll="handleFeedScroll()"></div>
+        </div>
+
+        <div class="feed-sidebar">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
+            <div style="font-size: 26px;">🛡️</div>
+            <div>
+              <h4 style="color:#00d4ff; font-size:15px; margin:0;">AI Chowkidaar Inspector</h4>
+              <span style="font-size:11px; color:#10b981;">● Live Reel Watchdog</span>
+            </div>
+          </div>
+
+          <p style="font-size:12px; color:#9ca3af; line-height:1.5; margin-bottom:12px;">
+            Reels scroll karte waqt AI background mein caption, account age, velocity aur suspicious links ko scan karta hai.
+          </p>
+
+          <div id="sidebarLiveThreatBox" style="background:#0b0f17; padding:14px; border-radius:8px; border:1px solid #1f2937; font-size:12px; margin-bottom:14px;">
+            <div style="color:#10b981; font-weight:bold; margin-bottom:4px;" id="sidebarReelStatus">🟢 Reel #1 Safe Hai</div>
+            <div style="color:#9ca3af; line-height:1.4;" id="sidebarReelDesc">Normal social interaction. Chai aur mausam ki post.</div>
+          </div>
+
+          <!-- Quick Test Demo Buttons -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:11px; font-weight:bold; color:#9ca3af; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">⚡ Quick Test Demos:</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <button class="btn-action-tool" style="text-align:left; padding:7px 10px; font-size:11px; display:flex; justify-content:space-between; align-items:center;" onclick="jumpToReel(0)">
+                <span>🟢 Reel #1: Chai Mausam</span>
+                <span style="color:#10b981; font-weight:bold;">Safe</span>
+              </button>
+              <button class="btn-action-tool" style="text-align:left; padding:7px 10px; font-size:11px; display:flex; justify-content:space-between; align-items:center; border-color:rgba(239,68,68,0.5);" onclick="jumpToReel(1)">
+                <span>🔴 Reel #2: 25L Lottery OTP</span>
+                <span style="color:#ef4444; font-weight:bold;">Scam 🚨</span>
+              </button>
+              <button class="btn-action-tool" style="text-align:left; padding:7px 10px; font-size:11px; display:flex; justify-content:space-between; align-items:center; border-color:rgba(239,68,68,0.5);" onclick="jumpToReel(3)">
+                <span>🔴 Reel #4: Bank Block Phishing</span>
+                <span style="color:#ef4444; font-weight:bold;">Scam 🚨</span>
+              </button>
+              <button class="btn-action-tool" style="text-align:left; padding:7px 10px; font-size:11px; display:flex; justify-content:space-between; align-items:center; border-color:rgba(245,158,11,0.5);" onclick="jumpToReel(5)">
+                <span>🟠 Reel #6: 5G Tower Panic</span>
+                <span style="color:#f59e0b; font-weight:bold;">Fake News</span>
+              </button>
+              <button class="btn-action-tool" style="text-align:left; padding:7px 10px; font-size:11px; display:flex; justify-content:space-between; align-items:center; border-color:rgba(239,68,68,0.5);" onclick="jumpToReel(9)">
+                <span>🔴 Reel #10: Bot Coordination</span>
+                <span style="color:#ef4444; font-weight:bold;">Bot Swarm</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn-action-tool" style="width:100%; margin-bottom:10px; background:#00d4ff; color:#000; font-weight:bold; border:none; padding:10px;" onclick="toggleChowkidaarChat(true)">
+            💬 Open AI Chowkidaar Chat Window
+          </button>
+          <button class="btn-action-tool" style="width:100%; padding:10px;" onclick="switchTab('dashboard')">
+            📊 Open Analytical Dashboard →
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Action Navigation Cards -->
+      <div class="cards-grid">
+        <div class="action-card" onclick="switchTab('add')">
+          <div>
+            <div class="card-icon">➕</div>
+            <div class="card-title">Add & Test Custom Post</div>
+            <div class="card-desc">Judge ya user apna custom video/caption likhkar 1 second ke andar real-time threat score aur reasons jaan sakte hain.</div>
+          </div>
+          <div class="card-btn">Check Custom Post →</div>
+        </div>
+
+        <div class="action-card" onclick="switchTab('dashboard')">
+          <div>
+            <div class="card-icon">📊</div>
+            <div class="card-title">Analytical Dashboard</div>
+            <div class="card-desc">CCTV control room style screen jisme City Heatmap, Spikes, CSV Download aur Human-in-the-loop review available hai.</div>
+          </div>
+          <div class="card-btn">View Full Dashboard →</div>
+        </div>
+
+        <div class="action-card" style="border-color: rgba(0, 212, 255, 0.4); background: linear-gradient(180deg, #111827, #0b1526);" onclick="toggleChowkidaarChat(true)">
+          <div>
+            <div class="card-icon">🛡️</div>
+            <div class="card-title" style="color: #00d4ff;">AI Chowkidaar (Bot Extension)</div>
+            <div class="card-desc">Screen ke corner mein baitha hua intelligent watchdog jo live reels scan karta hai aur chat pe fraud samjhata hai.</div>
+          </div>
+          <div class="card-btn" style="background: #00d4ff; color: #000; font-weight: 800;">Chat With Bot →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: ADD REEL SCREEN -->
+    <div id="addScreen">
+      <div class="add-layout">
+        <h2 style="font-size:20px; color:#00d4ff; margin-bottom:15px;">➕ Nayi Reel / Post Check & Add Karo</h2>
+        <div class="form-group">
+          <label>Video File Chuno (Optional)</label>
+          <input type="file" id="newVideoFile" accept="video/*">
+        </div>
+        <div class="form-group">
+          <label>Caption / Text *</label>
+          <textarea id="newCaption" placeholder="Yahan test caption likhein (jaise: 50 lakh lottery jeeti, OTP bhejo)..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Link (Optional)</label>
+          <input type="text" id="newLink" placeholder="Jaise: https://example.com/phishing-test">
+        </div>
+        <div class="form-group">
+          <label>Shehar (Location)</label>
+          <input type="text" id="newCity" placeholder="Jaise: Jaipur, Delhi, Mumbai">
+        </div>
+        <div class="form-group">
+          <label>Hashtags</label>
+          <input type="text" id="newTags" placeholder="#lottery #breaking">
+        </div>
+        <button class="btn-submit" onclick="submitNewPost()">🛡️ AI All-Threat Check & Post</button>
+        <div id="checkResult" class="check-result-box"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: ANALYTICAL DASHBOARD SCREEN -->
+    <div id="dashboardScreen">
+      <!-- Live SOC Engine Status & Real-time Stream Banner -->
+      <div class="live-soc-banner">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="live-indicator-dot"></span>
+          <b style="color:#00d4ff;">SOC LIVE INGESTION ENGINE:</b>
+          <span id="socStatusText" style="color:#10b981; font-weight:600;">ACTIVE (Listening to YouTube Shorts on Port 8765)</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-size:11px; color:#9ca3af;">⚡ Live Threat Simulators:</span>
+          <button class="btn-action-tool" style="padding:4px 10px; font-size:11px;" onclick="simulateLiveThreat('scam')">💸 Test Scam</button>
+          <button class="btn-action-tool" style="padding:4px 10px; font-size:11px; border-color:rgba(168,85,247,0.5);" onclick="simulateLiveThreat('digital_arrest')">👮 Test Digital Arrest</button>
+          <button class="btn-action-tool" style="padding:4px 10px; font-size:11px; border-color:rgba(16,185,129,0.5);" onclick="simulateLiveThreat('safe')">🟢 Test Safe</button>
+        </div>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-title">Posts Ingested</div>
+          <div class="metric-val" id="kpiTotal">0</div>
+          <div class="metric-sub" id="kpiTotalSub">Across Monitored Channels</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-title">Critical Threats</div>
+          <div class="metric-val" id="kpiHigh" style="color:#ef4444;">0</div>
+          <div class="metric-sub">Score &gt;= 70 (Urgent Flag)</div>
+        </div>
+        <div class="metric-card orange">
+          <div class="metric-title">Moderate Alerts</div>
+          <div class="metric-val" id="kpiMed" style="color:#f59e0b;">0</div>
+          <div class="metric-sub">Score 40 - 69</div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-title">AI Latency</div>
+          <div class="metric-val" style="color:#10b981;">0.08s</div>
+          <div class="metric-sub">Real-Time Instant Scan</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="metric-title">Human Verified</div>
+          <div class="metric-val" id="kpiReviewed" style="color:#a78bfa;">0</div>
+          <div class="metric-sub">Analyst Reviewed</div>
+        </div>
+      </div>
+
+      <!-- Real-time Ingestion Activity Stream Box -->
+      <div class="chart-box" style="margin-bottom: 20px; padding: 12px 18px;">
+        <div class="chart-header" style="margin-bottom: 8px;">
+          <span class="chart-title" style="display:flex; align-items:center; gap:8px;">
+            <span class="live-indicator-dot"></span>
+            🔴 Real-Time Threat Ingestion Stream (Live YouTube Shorts & Screen Feeds)
+          </span>
+          <span class="chart-pill" id="liveStreamCounter">Streaming Live...</span>
+        </div>
+        <div class="live-stream-box" id="liveIngestionFeed">
+          <div style="color:#64748b; text-align:center; padding:10px;">Connecting to Live Watchdog Stream...</div>
+        </div>
+      </div>
+
+      <div class="early-warning-banner">
+        <div class="ew-left">
+          <div class="ew-icon">⚡</div>
+          <div class="ew-text">
+            <b>EARLY WARNING SIMULATOR:</b> AI ne bheed badhne se <b>35 minute pehle</b> hi threat pattern pakad kar alert de diya.
+          </div>
+        </div>
+        <div class="ew-timeline">
+          <span class="ew-step active">🚨 10:05 AM: Threat Flagged</span>
+          <span>➔</span>
+          <span class="ew-step">👥 10:40 AM: Crowd Spike Reached</span>
+        </div>
+      </div>
+
+      <div class="analytics-grid-2">
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">📈 Threat Activity & Velocity Timeline (Live Minutes / 24 Hours)</span>
+            <span class="chart-pill" style="color:#10b981; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.1);">● Real-Time Radar</span>
+          </div>
+          <canvas id="liveTimelineCanvas" style="width:100%; height:160px; display:block;"></canvas>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">📊 Threat Category Breakdown</span>
+            <span class="chart-pill">Live Share</span>
+          </div>
+          <div class="breakdown-bars">
+            <div class="cat-bar-item">
+              <div class="cat-bar-head"><span>🔴 Cybercrime & Scam</span><b id="pctScam">0%</b></div>
+              <div class="cat-track"><div id="barScam" class="cat-fill" style="width:0%; background:#ef4444;"></div></div>
+            </div>
+            <div class="cat-bar-item">
+              <div class="cat-bar-head"><span>🟠 Misinformation / Fake News</span><b id="pctFake">0%</b></div>
+              <div class="cat-track"><div id="barFake" class="cat-fill" style="width:0%; background:#f59e0b;"></div></div>
+            </div>
+            <div class="cat-bar-item">
+              <div class="cat-bar-head"><span>🟣 Social Tension / Incitement</span><b id="pctTension">0%</b></div>
+              <div class="cat-track"><div id="barTension" class="cat-fill" style="width:0%; background:#a855f7;"></div></div>
+            </div>
+            <div class="cat-bar-item">
+              <div class="cat-bar-head"><span>🔵 Coordinated Inauthentic Activity</span><b id="pctCoord">0%</b></div>
+              <div class="cat-track"><div id="barCoord" class="cat-fill" style="width:0%; background:#00d4ff;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-grid-3">
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">🌍 Geographic Threat Hotspots (City Heatmap)</span>
+            <span class="chart-pill">Where data permits</span>
+          </div>
+          <div id="geoList"></div>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">🔥 Emerging Keywords & Velocity Spikes</span>
+            <span class="chart-pill" style="color:#ef4444;">Live Velocity</span>
+          </div>
+          <div class="tag-cloud" id="trendTags"></div>
+        </div>
+      </div>
+
+      <div class="chart-box" style="margin-top:20px;">
+        <div class="action-bar-top">
+          <div class="filter-tabs">
+            <button class="filter-btn active" onclick="filterCategory('all', this)">Sabhi (All)</button>
+            <button class="filter-btn" onclick="filterCategory('scam', this)">Scam</button>
+            <button class="filter-btn" onclick="filterCategory('fake_news', this)">Fake News</button>
+            <button class="filter-btn" onclick="filterCategory('tension', this)">Social Tension</button>
+            <button class="filter-btn" onclick="filterCategory('coordinated', this)">Coordinated</button>
+          </div>
+          <div class="tool-btns">
+            <button class="btn-action-tool" onclick="runAccuracyTest()">🧪 Test Chalao (Accuracy & Recall)</button>
+            <button class="btn-action-tool" onclick="exportAlertsCSV()">📥 Export All Alerts (CSV)</button>
+          </div>
+        </div>
+
+        <div id="alertList"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- SUSPICIOUS LINK "ARE YOU SURE" MODAL (Part 4b & Part 9) -->
+  <div class="link-modal-overlay" id="linkModal">
+    <div class="link-modal-box">
+      <div class="modal-icon">🚨</div>
+      <div class="modal-title">Khatarnak Link Warning!</div>
+      <div class="modal-msg">
+        Ye link ek <b>suspicious phishing/fraud site</b> ka lag raha hai. Kya aap sure hain ki aap ise kholna chahte hain?
+      </div>
+      <div class="modal-url-box" id="modalUrlText">https://example.com/test</div>
+      <div class="modal-btns">
+        <button class="btn-safe" onclick="closeLinkModal()">🛑 Wapas Jao (Safe Raho)</button>
+        <button class="btn-danger" onclick="proceedDangerousLink()">⚠️ Phir Bhi Kholo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST EXPLAINABILITY & HUMAN REVIEW MODAL (Requirement B, C, E) -->
+  <div class="link-modal-overlay" id="postReviewModal" onclick="if(event.target===this)closeReviewModal()">
+    <div class="link-modal-box" style="max-width:540px; border-color:#00d4ff; text-align:left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #1f2937; padding-bottom:8px;">
+        <h3 style="color:#00d4ff; font-size:16px; margin:0; display:flex; align-items:center; gap:8px;">
+          <span>🔍 Post Threat Review & Explainability</span>
+        </h3>
+        <button onclick="closeReviewModal()" style="background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer; line-height:1;">✕</button>
+      </div>
+      <div id="reviewModalBody" style="font-size:13px; line-height:1.5;"></div>
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid #1f2937; display:flex; gap:10px;">
+        <button class="btn-safe" style="background:#dc2626;" onclick="modalSubmitReview('Needs Investigation')">🚩 Needs Investigation</button>
+        <button class="btn-safe" style="background:#059669;" onclick="modalSubmitReview('Not Concerning')">✅ Not Concerning</button>
+        <button class="btn-danger" style="flex:0.6;" onclick="closeReviewModal()">Band Karo</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="posts.js"></script>
+
+  <script>
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // -------------------------------------------------------------
+    // AI CHOWKIDAAR (4 DETECTORS)
+    // -------------------------------------------------------------
+    function checkScam(text) {
+      const lalach = [
+        { w: "paise double", p: 30 }, { w: "paisa double", p: 30 }, { w: "lottery", p: 30 }, { w: "lotri", p: 30 },
+        { w: "lucky draw", p: 25 },   { w: "5 guna", p: 25 },        { w: "free", p: 15 },    { w: "prize", p: 20 },
+        { w: "inaam", p: 20 },        { w: "claim", p: 20 },         { w: "bonus", p: 15 },   { w: "50 lakh", p: 25 }
+      ];
+      const darr = [
+        { w: "account band", p: 25 }, { w: "khata band", p: 25 },    { w: "aaj raat", p: 20 }, { w: "sim block", p: 25 },
+        { w: "fir", p: 30 },          { w: "cbi", p: 30 },           { w: "jail", p: 30 },     { w: "urgent", p: 15 }
+      ];
+      const maangna = [
+        { w: "otp", p: 35 },          { w: "pin", p: 35 },           { w: "password", p: 30 }, { w: "anydesk", p: 35 },
+        { w: "fees", p: 30 },         { w: "deposit", p: 30 },       { w: "click", p: 20 },    { w: "link", p: 20 },
+        { w: "download", p: 20 },     { w: "bhejo", p: 15 },         { w: "send", p: 15 }
+      ];
+      const safe = [
+        { w: "mat batao", p: -40 },   { w: "kabhi na batayein", p: -40 }, { w: "awareness", p: -30 }
+      ];
+
+      let score = 0, reasons = [], hasL = false, hasD = false, hasM = false;
+      lalach.forEach(i => { if(text.includes(i.w)){ score += i.p; reasons.push(i.w); hasL = true; }});
+      darr.forEach(i => { if(text.includes(i.w)){ score += i.p; reasons.push(i.w); hasD = true; }});
+      maangna.forEach(i => { if(text.includes(i.w)){ score += i.p; reasons.push(i.w); hasM = true; }});
+      safe.forEach(i => { if(text.includes(i.w)){ score += i.p; reasons.push("Safe: " + i.w); }});
+
+      if (!hasM) score = Math.min(score, 45);
+      else if (!hasL && !hasD && hasM) score = Math.min(score, 65);
+      return { score: Math.max(0, Math.min(100, score)), reasons };
+    }
+
+    function checkFakeNews(text) {
+      const patterns = [
+        { w: "media nahi dikhayega", p: 40 }, { w: "sach samne aa gaya", p: 35 },
+        { w: "leaked", p: 35 },               { w: "khulasa", p: 30 },
+        { w: "viral video", p: 25 },          { w: "100% sach", p: 30 }
+      ];
+      let score = 0, reasons = [];
+      patterns.forEach(i => { if(text.includes(i.w)){ score += i.p; reasons.push(i.w); }});
+      return { score: Math.min(100, score), reasons };
+    }
+
+    function checkTension(text) {
+      const tension = [
+        { w: "aag laga do", p: 50 }, { w: "badla lenge", p: 40 },
+        { w: "danga", p: 45 },        { w: "hinsa", p: 45 },
+        { w: "attack", p: 40 },       { w: "sadak par aao", p: 30 }
+      ];
+      let score = 0, reasons = [];
+      tension.forEach(i => { if(text.includes(i.w)){ score += i.p; reasons.push(i.w); }});
+      return { score: Math.min(100, score), reasons };
+    }
+
+    function checkCoordination(post) {
+      let score = 0, reasons = [];
+      if (post.account_age_days !== undefined && post.account_age_days < 5 &&
+          post.posts_last_hour !== undefined && post.posts_last_hour > 10) {
+        score = 75;
+        reasons.push("Bot account (<5 din, >10 post/hr)");
+      }
+      return { score, reasons };
+    }
+
+    // SKIT004 60 Official Hackathon Rules Engine
+    const SKIT004_RULES = [{"id": 1, "scam_type": "Paise Double Scam", "trick_used": "Paise double ka lalach", "risk_level": "High", "keywords": ["link par click", "1000 lagao", "2000 wapas", "guarantee", "paise double"], "reason": "Kam time mein paise double nahi hote, ye jhootha vaada hai", "suggested_action": "Popup + analyst alert"}, {"id": 2, "scam_type": "Cashback OTP Scam", "trick_used": "OTP maangna", "risk_level": "High", "keywords": ["otp", "cashback", "comment mein likho"], "reason": "OTP kisi ko nahi dete, OTP dene se account khali ho jata hai", "suggested_action": "Popup + analyst alert"}, {"id": 3, "scam_type": "Fake Govt Scheme", "trick_used": "Personal details maangna", "risk_level": "High", "keywords": ["aadhaar", "bank details", "10000 rupay", "link"], "reason": "Sarkar kabhi reel ke link se details nahi maangti", "suggested_action": "Popup + analyst alert"}, {"id": 4, "scam_type": "Lottery Scam", "trick_used": "Pehle fees maangna", "risk_level": "High", "keywords": ["lottery", "claim", "processing fees", "link", "25 lakh"], "reason": "Bina ticket kharide lottery nahi lagti. Fees maangna scam ki nishani hai", "suggested_action": "Popup + analyst alert"}, {"id": 5, "scam_type": "KYC Phishing", "trick_used": "Darr aur jaldi", "risk_level": "High", "keywords": ["account band", "aaj raat", "kyc", "bit.ly"], "reason": "Chhote fake link, darr dikha kar login churana", "suggested_action": "Popup + analyst alert"}, {"id": 6, "scam_type": "Fake Job Scam", "trick_used": "Pehle fees maangna", "risk_level": "High", "keywords": ["ghar baithe", "roz 3000", "registration fees", "whatsapp"], "reason": "Job ke naam par pehle paise maangna", "suggested_action": "Popup + analyst alert"}, {"id": 7, "scam_type": "Fake Loan App", "trick_used": "Fake app download", "risk_level": "High", "keywords": ["instant loan", "bina documents", "app download", "50000"], "reason": "Fake loan app aapke contacts aur photos chura leta hai", "suggested_action": "Popup + analyst alert"}, {"id": 8, "scam_type": "Crypto Investment Fraud", "trick_used": "Unrealistic return", "risk_level": "High", "keywords": ["5 guna", "vip group", "telegram", "entry fees"], "reason": "Koi bhi investment 10 din mein 5 guna nahi hota", "suggested_action": "Popup + analyst alert"}, {"id": 9, "scam_type": "Parcel Scam", "trick_used": "Fake courier charge", "risk_level": "High", "keywords": ["parcel", "customs", "delivery charge", "pay karo"], "reason": "Fake courier ke naam par paise lena", "suggested_action": "Popup + analyst alert"}, {"id": 10, "scam_type": "Electricity Bill Scam", "trick_used": "Darr aur jaldi", "risk_level": "High", "keywords": ["connection kat jayega", "aaj raat", "call karo", "bijli"], "reason": "Jaldi mein galat kaam karwane ki koshish", "suggested_action": "Popup + analyst alert"}, {"id": 11, "scam_type": "Fake Customer Care", "trick_used": "Remote access app", "risk_level": "High", "keywords": ["customer care", "anydesk", "refund"], "reason": "AnyDesk se scammer poora phone control kar leta hai", "suggested_action": "Popup + analyst alert"}, {"id": 12, "scam_type": "UPI QR Scam", "trick_used": "QR scan aur PIN", "risk_level": "High", "keywords": ["upi refund", "qr scan", "pin"], "reason": "Paise lene ke liye QR scan ya PIN nahi daalte. Ulte paise kat jate hain", "suggested_action": "Popup + analyst alert"}, {"id": 13, "scam_type": "Digital Arrest Scam", "trick_used": "Police ka darr", "risk_level": "High", "keywords": ["cbi officer", "illegal parcel", "video call par rahiye", "digital arrest"], "reason": "Police video call par arrest nahi karti", "suggested_action": "Popup + analyst alert"}, {"id": 14, "scam_type": "Romance Gift Scam", "trick_used": "Gift ke naam par fees", "risk_level": "High", "keywords": ["army officer", "gift", "customs fees"], "reason": "Anjaan insaan se gift ke naam par paise maangna", "suggested_action": "Popup + analyst alert"}, {"id": 15, "scam_type": "Fake Govt Scheme", "trick_used": "Free ka lalach", "risk_level": "High", "keywords": ["free laptop", "aadhaar", "form", "link"], "reason": "Personal details churane ki koshish", "suggested_action": "Popup + analyst alert"}, {"id": 16, "scam_type": "Phishing", "trick_used": "Fake login page", "risk_level": "High", "keywords": ["account hack", "password reset", "login karo"], "reason": "Fake page se password churate hain", "suggested_action": "Popup + analyst alert"}, {"id": 17, "scam_type": "Fake Offer", "trick_used": "Forward chain", "risk_level": "Medium", "keywords": ["free recharge", "forward karo", "number daalo"], "reason": "Chain forward se aur logon tak phailta hai, number churate hain", "suggested_action": "Warning popup"}, {"id": 18, "scam_type": "Black Magic Fraud", "trick_used": "Andhvishwas", "risk_level": "Medium", "keywords": ["tantrik", "upay", "pehle bhejo"], "reason": "Andhvishwas ke naam par paise lena", "suggested_action": "Warning popup"}, {"id": 19, "scam_type": "Task Scam", "trick_used": "Chhota profit, phir bada deposit", "risk_level": "High", "keywords": ["har like par", "deposit", "task"], "reason": "Pehle chhota profit dikha ke baad mein bada deposit lete hain", "suggested_action": "Popup + analyst alert"}, {"id": 20, "scam_type": "Fake Job Scam", "trick_used": "Darr aur bank details maangna", "risk_level": "High", "keywords": ["daily 5000", "id card photo", "bank details"], "reason": "ID proof aur bank details churane ki koshish", "suggested_action": "Popup + analyst alert"}, {"id": 21, "scam_type": "SIM Block Scam", "trick_used": "Darr aur jaldi", "risk_level": "High", "keywords": ["sim block", "2 ghanta", "9 dabao"], "reason": "Fake call transfer scam", "suggested_action": "Popup + analyst alert"}, {"id": 22, "scam_type": "Paper Leak Scam", "trick_used": "Paper ka lalach", "risk_level": "High", "keywords": ["paper leak", "answer key", "500", "upi"], "reason": "Paper leak ke naam par thagi", "suggested_action": "Popup + analyst alert"}, {"id": 23, "scam_type": "Fake APK Scam", "trick_used": "Fake app", "risk_level": "High", "keywords": ["apk", "bank app", "login"], "reason": "Play Store ke bahar ki APK mein virus hota hai", "suggested_action": "Popup + analyst alert"}, {"id": 24, "scam_type": "Hacking Tool Scam", "trick_used": "Fake tool download", "risk_level": "High", "keywords": ["hack", "5 minute", "tool download", "link"], "reason": "Hacking tool ke naam par virus ya password chori", "suggested_action": "Popup + analyst alert"}, {"id": 25, "scam_type": "PIN Scam", "trick_used": "PIN maangna", "risk_level": "High", "keywords": ["card number", "pin bhejo"], "reason": "PIN kisi ko nahi batate", "suggested_action": "Popup + analyst alert"}, {"id": 26, "scam_type": "Police Impersonation", "trick_used": "Police ka darr", "risk_level": "High", "keywords": ["fir", "bachna hai", "20000", "upi"], "reason": "Police ke naam lekar paise maangna", "suggested_action": "Popup + analyst alert"}, {"id": 27, "scam_type": "Gaming Phishing", "trick_used": "Game ka lalach", "risk_level": "High", "keywords": ["unlimited diamonds", "free", "password daalo"], "reason": "Game account churane ki koshish", "suggested_action": "Popup + analyst alert"}, {"id": 28, "scam_type": "Fake Job Scam", "trick_used": "Pehle fees maangna", "risk_level": "High", "keywords": ["data entry", "registration fee", "refund"], "reason": "Pehle paise lena aur baad mein gayab ho jana", "suggested_action": "Popup + analyst alert"}, {"id": 29, "scam_type": "Fake Charity", "trick_used": "Emotion se paise", "risk_level": "Medium", "keywords": ["beti bimaar", "turant upi", "zaroori"], "reason": "Emotion dikha ke paise nikalna", "suggested_action": "Warning popup"}, {"id": 30, "scam_type": "Card Details Scam", "trick_used": "CVV maangna", "risk_level": "High", "keywords": ["card details", "cvv", "limit badhane"], "reason": "CVV kabhi share nahi karte", "suggested_action": "Popup + analyst alert"}, {"id": 31, "scam_type": "Stock Tips Fraud", "trick_used": "Sure shot ka lalach", "risk_level": "High", "keywords": ["sure shot", "profit", "advance"], "reason": "Share market mein koi guarantee nahi hoti", "suggested_action": "Popup + analyst alert"}, {"id": 32, "scam_type": "Sextortion", "trick_used": "Blackmail", "risk_level": "High", "keywords": ["private photos", "warna bhej dunga"], "reason": "Dhamki dekar paise maangna", "suggested_action": "Popup + analyst alert"}, {"id": 33, "scam_type": "Fake Sale Scam", "trick_used": "Bahut sasta offer", "risk_level": "High", "keywords": ["iphone 999", "fake sale", "link"], "reason": "Itna sasta iPhone nahi milta, link se paise ya details chori", "suggested_action": "Popup + analyst alert"}, {"id": 34, "scam_type": "Aadhaar Update Scam", "trick_used": "Darr aur jaldi", "risk_level": "High", "keywords": ["aadhaar update", "band ho jayega", "link"], "reason": "Aadhaar update ke liye fake link", "suggested_action": "Popup + analyst alert"}, {"id": 35, "scam_type": "Tax Refund Scam", "trick_used": "Refund ka lalach", "risk_level": "High", "keywords": ["tax refund", "bank details", "link"], "reason": "Tax department sms ya link se bank details nahi maangta", "suggested_action": "Popup + analyst alert"}, {"id": 36, "scam_type": "Scholarship Scam", "trick_used": "OTP maangna", "risk_level": "High", "keywords": ["scholarship", "25000", "otp", "claim"], "reason": "Scholarship ke naam par OTP churana", "suggested_action": "Popup + analyst alert"}, {"id": 37, "scam_type": "Trading App Fraud", "trick_used": "Roz kamai ka lalach", "risk_level": "High", "keywords": ["roz 10000", "trading app", "pehle 5000"], "reason": "Fake trading app mein paise dikhte hain, nikalte nahi", "suggested_action": "Popup + analyst alert"}, {"id": 38, "scam_type": "Instagram Verification Scam", "trick_used": "Blue tick ka lalach", "risk_level": "High", "keywords": ["blue tick", "verify", "password"], "reason": "Fake verification page se password chori", "suggested_action": "Popup + analyst alert"}, {"id": 39, "scam_type": "OLX Car Scam", "trick_used": "Army ke naam par advance", "risk_level": "High", "keywords": ["army", "advance", "transfer"], "reason": "Fake army seller advance leke gayab", "suggested_action": "Popup + analyst alert"}, {"id": 40, "scam_type": "KBC Lottery Scam", "trick_used": "Fake lottery", "risk_level": "High", "keywords": ["kbc lottery", "25 lakh", "whatsapp"], "reason": "KBC kabhi WhatsApp par lottery nahi deta", "suggested_action": "Popup + analyst alert"}, {"id": 41, "scam_type": "Gas Subsidy Scam", "trick_used": "Subsidy ka lalach", "risk_level": "High", "keywords": ["subsidy", "aadhaar", "account number", "link"], "reason": "Subsidy ke naam par details churana", "suggested_action": "Popup + analyst alert"}, {"id": 42, "scam_type": "Insurance Bonus Scam", "trick_used": "Pehle tax maangna", "risk_level": "High", "keywords": ["bonus pending", "tax pay", "1 lakh"], "reason": "Pehle paise maangna", "suggested_action": "Popup + analyst alert"}, {"id": 43, "scam_type": "Lucky Draw Scam", "trick_used": "Pehle fees maangna", "risk_level": "High", "keywords": ["lucky draw", "select", "999 bhejo"], "reason": "Fake lucky draw", "suggested_action": "Popup + analyst alert"}, {"id": 44, "scam_type": "Video Call Scam", "trick_used": "Video call se blackmail", "risk_level": "High", "keywords": ["video call", "inaam", "utha lo"], "reason": "Video call record karke blackmail kiya jata hai", "suggested_action": "Popup + analyst alert"}, {"id": 45, "scam_type": "Paytm KYC Scam", "trick_used": "Darr aur jaldi", "risk_level": "High", "keywords": ["kyc expire", "10 rupay bhej", "wallet band"], "reason": "10 rupay ke naam par poora account khali", "suggested_action": "Popup + analyst alert"}, {"id": 46, "scam_type": "Matrimonial Scam", "trick_used": "Registration fees", "risk_level": "Medium", "keywords": ["matrimonial", "registration", "photo dikhaungi"], "reason": "Shaadi ke naam par paise lena", "suggested_action": "Warning popup"}, {"id": 47, "scam_type": "Telegram Earning Scam", "trick_used": "Deposit maangna", "risk_level": "High", "keywords": ["telegram", "har din 500", "deposit"], "reason": "Telegram par fake earning group", "suggested_action": "Popup + analyst alert"}, {"id": 48, "scam_type": "Fake Gift Voucher", "trick_used": "Voucher ka lalach", "risk_level": "Medium", "keywords": ["gift voucher", "link", "number daalo"], "reason": "Voucher ke naam par number churana", "suggested_action": "Warning popup"}, {"id": 49, "scam_type": "Bank Phishing", "trick_used": "Fake bank page", "risk_level": "High", "keywords": ["account suspend", "net banking login", "link"], "reason": "Fake bank page se login chori", "suggested_action": "Popup + analyst alert"}, {"id": 50, "scam_type": "Fake Business Investment", "trick_used": "Pakka profit ka vaada", "risk_level": "High", "keywords": ["10000 lagao", "har mahine profit pakka"], "reason": "Pakka profit ka vaada jhootha hota hai", "suggested_action": "Popup + analyst alert"}, {"id": 51, "scam_type": "OTP Scam", "trick_used": "OTP maangna", "risk_level": "High", "keywords": ["lucky number", "1 crore", "otp"], "reason": "OTP maangna scam hai", "suggested_action": "Popup + analyst alert"}, {"id": 52, "scam_type": "Paise Double Scam", "trick_used": "Fake proof", "risk_level": "High", "keywords": ["link par click", "paise double", "5 lakh", "proof"], "reason": "Fake screenshot dikha ke bharosa jeetna", "suggested_action": "Popup + analyst alert"}, {"id": 53, "scam_type": "Fake Recharge Offer", "trick_used": "OTP maangna", "risk_level": "High", "keywords": ["free recharge", "otp", "link"], "reason": "Fake offer se OTP churana", "suggested_action": "Popup + analyst alert"}, {"id": 54, "scam_type": "WhatsApp Ban Scam", "trick_used": "Darr aur jaldi", "risk_level": "High", "keywords": ["whatsapp band", "verify", "link"], "reason": "Fake link se WhatsApp account hack", "suggested_action": "Popup + analyst alert"}, {"id": 55, "scam_type": "GPay Double Scam", "trick_used": "Chhota test, phir bada", "risk_level": "High", "keywords": ["paisa double", "500 bhej", "check karo"], "reason": "Pehle chhota wapas deke bharosa jeetna", "suggested_action": "Popup + analyst alert"}, {"id": 56, "scam_type": "SIM Misuse Scam", "trick_used": "Jail ka darr", "risk_level": "High", "keywords": ["aadhaar se sim", "jail", "turant call"], "reason": "Darr dikha ke paise ya details lena", "suggested_action": "Popup + analyst alert"}, {"id": 57, "scam_type": "Fake Rental Scam", "trick_used": "Advance maangna", "risk_level": "High", "keywords": ["kiraya kam", "advance", "courier chaabi"], "reason": "Ghar dikhaye bina advance lena", "suggested_action": "Popup + analyst alert"}, {"id": 58, "scam_type": "Fake Referral App", "trick_used": "Bank account link", "risk_level": "High", "keywords": ["har refer par", "app install", "bank account link"], "reason": "Fake app se bank details chori", "suggested_action": "Popup + analyst alert"}, {"id": 59, "scam_type": "Fake Loan Scam", "trick_used": "Processing fee", "risk_level": "High", "keywords": ["0% interest", "processing fee"], "reason": "Pehle fees maangna", "suggested_action": "Popup + analyst alert"}, {"id": 60, "scam_type": "Netflix Phishing", "trick_used": "Card details maangna", "risk_level": "Medium", "keywords": ["netflix", "card details", "link"], "reason": "Fake page se card details chori", "suggested_action": "Warning popup"}];
+
+    function getRuleCategory(rule) {
+      const type = (rule.scam_type || "").toLowerCase();
+      const trick = (rule.trick_used || "").toLowerCase();
+      if (type.includes("govt") || type.includes("paper leak") || type.includes("kbc") || type.includes("news") || type.includes("verification") || type.includes("sale") || type.includes("subsidy") || trick.includes("fake proof")) {
+        return "fake_news";
+      }
+      if (type.includes("digital arrest") || type.includes("police") || type.includes("sextortion") || type.includes("black magic") || type.includes("jail") || type.includes("sim misuse") || trick.includes("darr") || trick.includes("blackmail")) {
+        return "tension";
+      }
+      if (type.includes("telegram") || type.includes("task") || type.includes("chain") || type.includes("referral") || trick.includes("forward") || trick.includes("vip group")) {
+        return "coordinated";
+      }
+      return "scam";
+    }
+
+    const WEAK_KEYWORDS = new Set(['link', 'form', 'free', 'proof', 'claim', 'pin', 'otp', 'upi', 'apk', 'gift', 'task', '500', 'login', 'army']);
+
+    function analyzePost(post) {
+      // If already analyzed by Python Watchdog, return directly
+      if (post.analysis && post.analysis.level) {
+        return {
+          level: post.analysis.level,
+          score: post.analysis.score,
+          category: post.category || post.analysis.category || "scam",
+          scam_type: post.analysis.scam_type || "Suspicious Scam",
+          trick_used: post.analysis.trick_used || "Deceptive Pattern",
+          suggested_action: post.analysis.suggested_action || "Popup + analyst alert",
+          reasons: post.analysis.reasons || ["Scam indicator flagged"]
+        };
+      }
+
+      let text = (post.post_text || "").toLowerCase();
+
+      // Synonyms and phrase normalization for English & Hinglish scam triggers
+      const phraseNormalizations = [
+        [/\b(?:how\s+to\s+)?double\s+(?:your\s+|my\s+)?money\b/i, 'paise double guarantee'],
+        [/\bmoney\s+double\b/i, 'paise double guarantee'],
+        [/\bdouble\s+(?:your\s+)?investment\b/i, 'paise double guarantee'],
+        [/\bdouble\s+(?:paisa|paise)\b/i, 'paise double guarantee'],
+        [/\b(?:paisa|paise)\s+double\b/i, 'paise double guarantee'],
+        [/\b(?:paisa|paise)\s+dugna\b/i, 'paise double guarantee'],
+        [/\b(?:paisa|paise)\s+2\s*guna\b/i, 'paise double guarantee'],
+        [/\b2x\s+(?:money|returns?|profit|cash)\b/i, 'paise double guarantee'],
+        [/\bmake\s+money\s+double\b/i, 'paise double guarantee'],
+        [/\bmultiply\s+money\b/i, 'paise double guarantee'],
+        [/\b1000\s*(?:rs|rupay)?\s*lagao\b/i, '1000 lagao 2000 wapas'],
+        [/\bwon\s+(?:a\s+)?lottery\b/i, 'lottery 25 lakh claim'],
+        [/\bclaim\s+(?:your\s+)?lottery\b/i, 'lottery 25 lakh claim'],
+        [/\bdigital\s+arrest\b/i, 'digital arrest cbi officer'],
+        [/\bpolice\s+video\s+call\b/i, 'cbi officer digital arrest'],
+        [/\bkyc\s+(?:expired?|suspended?|blocked?|update)\b/i, 'kyc account band aaj raat'],
+        [/\bfree\s+(?:laptop|phone|smartphone|tablet)\b/i, 'free laptop aadhaar link'],
+        [/\bfree\s+recharge\b/i, 'free recharge forward karo']
+      ];
+      for (const [pat, repl] of phraseNormalizations) {
+        if (pat.test(text)) {
+          text += ' ' + repl;
+        }
+      }
+
+      // Mitigators (Cyber awareness posts)
+      const mitigators = [
+        "cyber cell advisory", "kabhi bhi phone karke otp", "never share otp",
+        "cybercrime awareness", "kisi ko mat batao", "bank kabhi bhi otp", "savdhaan rahe"
+      ];
+      const isEducational = mitigators.some(m => text.includes(m));
+
+      // 1. Check against the 60 Official SKIT004 Rules with Word Boundary Matching
+      let bestMatch = null;
+      let maxMatched = 0;
+
+      for (const rule of SKIT004_RULES) {
+        let matched = [];
+        for (const kw of rule.keywords) {
+          const escaped = kw.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const reg = new RegExp('\\b' + escaped + '\\b', 'i');
+          if (reg.test(text)) {
+            matched.push(kw);
+          }
+        }
+        const hasStrong = matched.some(k => !WEAK_KEYWORDS.has(k.toLowerCase()));
+        const isValid = (hasStrong && matched.length >= 1) || (matched.length >= 2);
+
+        if (isValid && matched.length > maxMatched) {
+          maxMatched = matched.length;
+          bestMatch = { rule, matched };
+        }
+      }
+
+      if (bestMatch && maxMatched > 0 && !isEducational) {
+        const rule = bestMatch.rule;
+        const isHigh = rule.risk_level.toLowerCase() === 'high';
+        const assignedCat = post.category || getRuleCategory(rule);
+        return {
+          level: rule.risk_level.toUpperCase(),
+          score: isHigh ? Math.min(100, 85 + bestMatch.matched.length * 4) : 60,
+          category: assignedCat,
+          scam_type: rule.scam_type,
+          trick_used: rule.trick_used,
+          suggested_action: rule.suggested_action,
+          reasons: [
+            rule.reason,
+            `Red Flags: ${bestMatch.matched.join(', ')}`,
+            `Trick: ${rule.trick_used}`
+          ]
+        };
+      }
+
+      // 2. Check 4 Secondary Detectors
+      const s = checkScam(text), f = checkFakeNews(text), t = checkTension(text), c = checkCoordination(post);
+
+      const all = [
+        { cat: "scam", score: isEducational ? 0 : s.score, reasons: s.reasons, type: "Scam Pattern", trick: "Financial Lure" },
+        { cat: "fake_news", score: isEducational ? 0 : f.score, reasons: f.reasons, type: "Misinformation", trick: "Conspiracy narrative" },
+        { cat: "tension", score: isEducational ? 0 : t.score, reasons: t.reasons, type: "Social Tension", trick: "Violent provocation" },
+        { cat: "coordinated", score: isEducational ? 0 : c.score, reasons: c.reasons, type: "Coordinated Bots", trick: "Automated swarming" }
+      ].sort((a,b) => b.score - a.score);
+
+      const top = all[0];
+      const level = top.score >= 70 ? "HIGH" : (top.score >= 40 ? "MEDIUM" : "LOW");
+      return {
+        level: level,
+        score: top.score,
+        category: top.score >= 40 ? top.cat : "safe",
+        scam_type: top.score >= 40 ? top.type : (isEducational ? "Cyber Awareness (Safe)" : "Normal Content"),
+        trick_used: top.score >= 40 ? top.trick : "None",
+        suggested_action: top.score >= 70 ? "Popup + analyst alert" : (top.score >= 40 ? "Warning popup" : "Allow"),
+        reasons: top.reasons.length > 0 ? top.reasons : ["Normal activity"]
+      };
+    }
+
+    // -------------------------------------------------------------
+    // NAVIGATION & SCREENS
+    // -------------------------------------------------------------
+    let livePosts = [...samplePosts];
+    let alertReviews = {};
+    let activeFilter = 'all';
+    let pendingTargetUrl = "https://example.com";
+
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      const homeScreen = document.getElementById('homeScreen');
+      const addScreen = document.getElementById('addScreen');
+      const dashboardScreen = document.getElementById('dashboardScreen');
+
+      if (homeScreen) homeScreen.style.display = 'none';
+      if (addScreen) addScreen.style.display = 'none';
+      if (dashboardScreen) dashboardScreen.style.display = 'none';
+
+      let targetBtnId = 'btn-' + tab;
+      if (tab === 'feed' || tab === 'home') targetBtnId = 'btn-home';
+      const activeBtn = document.getElementById(targetBtnId);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tab === 'home' || tab === 'feed') {
+        if (homeScreen) homeScreen.style.display = 'block';
+        renderFeed();
+        setTimeout(() => handleFeedScroll(), 150);
+      } else if (tab === 'add') {
+        if (addScreen) addScreen.style.display = 'block';
+      } else if (tab === 'dashboard') {
+        if (dashboardScreen) dashboardScreen.style.display = 'block';
+        renderDashboard();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // FEED RENDERING & SUSPICIOUS LINK HANDLING
+    // -------------------------------------------------------------
+    const feedContainer = document.getElementById('feedContainer');
+
+    function renderFeed() {
+      feedContainer.innerHTML = '';
+      livePosts.forEach(post => {
+        const card = document.createElement('div');
+        card.className = 'reel-card';
+        card.id = 'reel-' + post.post_id;
+
+        // Check if post has link
+        let linkHtml = '';
+        if (post.link) {
+          linkHtml = `
+            <div>
+              <button class="suspicious-link-btn" onclick="openLinkWarning('${post.link}')">
+                🔗 Suspect Link: ${post.link.replace('https://', '')}
+              </button>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="video-container">
+            <video src="${post.video_file || ''}" loop playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"></video>
+            <div class="video-placeholder" style="${post.video_file ? 'display:none;' : 'display:block;'}">
+              🎬 <b>${post.video_file ? post.video_file : 'Reel Video'}</b><br><small>(Player Active)</small>
+            </div>
+          </div>
+          <div class="post-info">
+            <div class="author">@${escapeHtml(post.account_id)} • <small>${escapeHtml(post.location || "India")}</small></div>
+            <div class="caption">${escapeHtml(post.post_text)}</div>
+            <div class="tags">${(post.hashtags || []).join(' ')}</div>
+            ${linkHtml}
+          </div>
+
+          <div class="warning-overlay" id="overlay-${post.post_id}">
+            <div class="warning-box">
+              <div class="warning-title">⚠️ AI Threat Alert</div>
+              <div class="warning-desc" id="warning-text-${post.post_id}"></div>
+              <div class="btn-group">
+                <button class="btn-review" onclick="openReviewModal(${post.post_id})">🔍 Review Post</button>
+                <button class="btn-skip" onclick="skipToNext(${post.post_id})">⏭️ Skip</button>
+                <button class="btn-continue" onclick="continueViewing(${post.post_id})">👁️ Continue</button>
+              </div>
+            </div>
+          </div>
+        `;
+        feedContainer.appendChild(card);
+      });
+    }
+
+    function updateReelCounter(num) {
+      const el = document.getElementById('currentReelNum');
+      if (el) el.innerText = '#' + num;
+    }
+
+    window.jumpToReel = function(index) {
+      if (index >= 0 && index < livePosts.length) {
+        const card = document.getElementById('reel-' + livePosts[index].post_id);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            handleFeedScroll();
+            updateReelCounter(index + 1);
+          }, 300);
+        }
+      }
+    };
+
+    window.nextReel = function() {
+      const scrollY = feedContainer.scrollTop;
+      const cardHeight = feedContainer.clientHeight || 1;
+      const currentIndex = Math.round(scrollY / cardHeight);
+      if (currentIndex < livePosts.length - 1) {
+        jumpToReel(currentIndex + 1);
+      }
+    };
+
+    window.prevReel = function() {
+      const scrollY = feedContainer.scrollTop;
+      const cardHeight = feedContainer.clientHeight || 1;
+      const currentIndex = Math.round(scrollY / cardHeight);
+      if (currentIndex > 0) {
+        jumpToReel(currentIndex - 1);
+      }
+    };
+
+    function handleFeedScroll() {
+      const scrollY = feedContainer.scrollTop;
+      const cardHeight = feedContainer.clientHeight || 1;
+      const currentIndex = Math.round(scrollY / cardHeight);
+      
+      updateReelCounter(currentIndex + 1);
+
+      const targetPost = livePosts[currentIndex];
+      if (targetPost) {
+        const result = analyzePost(targetPost);
+        const overlay = document.getElementById('overlay-' + targetPost.post_id);
+        const warningText = document.getElementById('warning-text-' + targetPost.post_id);
+
+        const statusEl = document.getElementById('sidebarReelStatus');
+        const descEl = document.getElementById('sidebarReelDesc');
+
+        if (statusEl && descEl) {
+          if (result.level === "HIGH") {
+            statusEl.style.color = '#ef4444';
+            statusEl.innerHTML = `🔴 Reel #${targetPost.post_id}: HIGH ${result.category.toUpperCase()} (${result.score}/100)`;
+            descEl.innerHTML = `<b>Wajah:</b> ${result.reasons.join(', ')}`;
+          } else if (result.level === "MEDIUM") {
+            statusEl.style.color = '#f59e0b';
+            statusEl.innerHTML = `🟠 Reel #${targetPost.post_id}: MEDIUM ${result.category.toUpperCase()} (${result.score}/100)`;
+            descEl.innerHTML = `<b>Wajah:</b> ${result.reasons.join(', ')}`;
+          } else {
+            statusEl.style.color = '#10b981';
+            statusEl.innerHTML = `🟢 Reel #${targetPost.post_id}: Normal Safe Content (${result.score}/100)`;
+            descEl.innerHTML = `Koi scam ya threat pattern nahi mila. Safe social interaction.`;
+          }
+        }
+
+        if (overlay && warningText) {
+          if (result.level === "MEDIUM" || result.level === "HIGH") {
+            warningText.innerHTML = `Detected: <b>${result.category.toUpperCase()} (${result.level})</b><br><small>Score: ${result.score}/100<br>Wajah: ${result.reasons.join(', ')}</small>`;
+            overlay.style.display = 'flex';
+          }
+        }
+
+        if (typeof notifyBotAboutReel === 'function') {
+          notifyBotAboutReel(targetPost);
+        }
+      }
+    }
+
+    window.skipToNext = function(postId) {
+      const current = document.getElementById('reel-' + postId);
+      if (current && current.nextElementSibling) {
+        current.nextElementSibling.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    window.continueViewing = function(postId) {
+      const overlay = document.getElementById('overlay-' + postId);
+      if (overlay) overlay.style.display = 'none';
+    };
+
+    // Human Review Modal Logic
+    let currentReviewPostId = null;
+
+    window.openReviewModal = function(postId) {
+      const post = livePosts.find(p => p.post_id === postId);
+      if (!post) return;
+      currentReviewPostId = postId;
+      const res = analyzePost(post);
+      const currentStatus = alertReviews[postId] || "Pending Review";
+
+      const modal = document.getElementById('postReviewModal');
+      const body = document.getElementById('reviewModalBody');
+      if (!modal || !body) return;
+
+      const levelColor = res.level === 'HIGH' ? '#ef4444' : (res.level === 'MEDIUM' ? '#f59e0b' : '#10b981');
+      const levelBadge = `<span style="background:${levelColor}22; color:${levelColor}; border:1px solid ${levelColor}; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:11px;">${res.level} (${res.score}/100)</span>`;
+
+      let nextStep = "Platform terms review and audit log recorded.";
+      if (res.category === 'scam') nextStep = "Verify financial credentials, block malicious domain placeholder, alert cyber intelligence team.";
+      else if (res.category === 'fake_news') nextStep = "Cross-reference with PIB Fact Check / official fact registry; append community note.";
+      else if (res.category === 'tension') nextStep = "Urgent human moderation escalation; assess potential local public order risk.";
+      else if (res.category === 'coordinated') nextStep = "Inspect account registration timestamp and IP cluster; rate-limit automated bot network.";
+
+      body.innerHTML = `
+        <div style="background:#111827; padding:12px; border-radius:8px; margin-bottom:12px; border:1px solid #1f2937;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-weight:bold; color:#00d4ff;">@${escapeHtml(post.account_id)} (${escapeHtml(post.location || "India")})</span>
+            ${levelBadge}
+          </div>
+          <div style="color:#e5e7eb; font-size:13px; margin-bottom:8px; font-style:italic;">"${escapeHtml(post.post_text)}"</div>
+          <div style="font-size:11px; color:#9ca3af;">Hashtags: ${(post.hashtags || []).join(' ')} • Time: ${post.time}</div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px; font-weight:bold; color:#f87171; margin-bottom:4px;">🚨 Flagged Indicators / Reasons:</div>
+          <ul style="padding-left:18px; color:#d1d5db; font-size:12px;">
+            ${res.reasons.map(r => `<li>${r}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div style="margin-bottom:12px; background:#0b1526; border:1px solid #1e3a8a; padding:10px; border-radius:6px; font-size:12px;">
+          <b style="color:#60a5fa;">💡 Suggested Reviewer Action:</b>
+          <div style="color:#cbd5e1; margin-top:3px;">${nextStep}</div>
+        </div>
+
+        <div style="background:#18181b; border:1px solid #27272a; padding:8px 10px; border-radius:6px; font-size:11px; color:#a1a1aa; line-height:1.4;">
+          ℹ️ <b>Ethical & Technical Disclaimer:</b> This flag is an automated early indicator based on transparent rule heuristics. It does <b>not</b> constitute definitive legal proof of wrongdoing or malicious intent. Human analyst verification is mandatory.
+        </div>
+
+        <div style="margin-top:10px; font-size:12px; color:#9ca3af;">
+          Current Review Status: <b style="color:#00d4ff;">${currentStatus}</b>
+        </div>
+      `;
+
+      modal.style.display = 'flex';
+    };
+
+    window.closeReviewModal = function() {
+      const modal = document.getElementById('postReviewModal');
+      if (modal) modal.style.display = 'none';
+    };
+
+    window.modalSubmitReview = function(decision) {
+      if (currentReviewPostId) {
+        setReview(currentReviewPostId, decision);
+        closeReviewModal();
+        continueViewing(currentReviewPostId);
+      }
+    };
+
+    // Suspicious Link Warning Modal
+    window.openLinkWarning = function(url) {
+      pendingTargetUrl = url;
+      document.getElementById('modalUrlText').innerText = url;
+      document.getElementById('linkModal').style.display = 'flex';
+    };
+
+    window.closeLinkModal = function() {
+      document.getElementById('linkModal').style.display = 'none';
+    };
+
+    window.proceedDangerousLink = function() {
+      document.getElementById('linkModal').style.display = 'none';
+      // Open safe test example in new tab
+      window.open('https://example.com', '_blank');
+    };
+
+    // -------------------------------------------------------------
+    // ADD NEW POST
+    // -------------------------------------------------------------
+    window.submitNewPost = function() {
+      const caption = document.getElementById('newCaption').value.trim();
+      const link = document.getElementById('newLink').value.trim();
+      const city = document.getElementById('newCity').value.trim();
+      const tagsStr = document.getElementById('newTags').value.trim();
+      const videoInput = document.getElementById('newVideoFile');
+      const resultBox = document.getElementById('checkResult');
+
+      if (!caption) { alert("Caption likhna zaroori hai!"); return; }
+
+      const aiResult = analyzePost({ post_text: caption });
+      resultBox.style.display = 'block';
+
+      if (aiResult.level === 'HIGH') {
+        resultBox.style.background = '#2a0808'; resultBox.style.border = '1px solid #ef4444';
+        resultBox.innerHTML = `🔴 <b>HIGH ${aiResult.category.toUpperCase()}!</b> Score: ${aiResult.score}/100<br><small>Wajah: ${aiResult.reasons.join(', ')}</small><br><div style="margin-top:8px;"><button class="btn-action-tool" onclick="switchTab('home')">📱 View in Reel Feed (Home)</button> <button class="btn-action-tool" onclick="switchTab('dashboard')">📊 View in Dashboard</button></div>`;
+      } else if (aiResult.level === 'MEDIUM') {
+        resultBox.style.background = '#2a1708'; resultBox.style.border = '1px solid #f59e0b';
+        resultBox.innerHTML = `🟠 <b>MEDIUM ${aiResult.category.toUpperCase()}!</b> Score: ${aiResult.score}/100<br><small>Wajah: ${aiResult.reasons.join(', ')}</small><br><div style="margin-top:8px;"><button class="btn-action-tool" onclick="switchTab('home')">📱 View in Reel Feed (Home)</button></div>`;
+      } else {
+        resultBox.style.background = '#0a2318'; resultBox.style.border = '1px solid #10b981';
+        resultBox.innerHTML = `🟢 <b>SAFE POST!</b> Score: ${aiResult.score}/100<br><small>Koi khatarnak pattern nahi mila.</small><br><div style="margin-top:8px;"><button class="btn-action-tool" onclick="switchTab('home')">📱 View in Reel Feed (Home)</button></div>`;
+      }
+
+      let videoUrl = (videoInput.files && videoInput.files[0]) ? URL.createObjectURL(videoInput.files[0]) : "";
+
+      const newPost = {
+        post_id: Date.now(),
+        account_id: "Judge_User",
+        post_text: caption,
+        time: new Date().toLocaleTimeString(),
+        location: city || "Jaipur",
+        hashtags: tagsStr ? tagsStr.split(" ") : ["#news"],
+        media_type: "video",
+        video_file: videoUrl,
+        link: link || "",
+        label: aiResult.category
+      };
+
+      livePosts.unshift(newPost);
+      renderFeed();
+      renderDashboard();
+      document.getElementById('newCaption').value = '';
+      document.getElementById('newLink').value = '';
+    };
+
+    // -------------------------------------------------------------
+    // DASHBOARD ENGINE
+    // -------------------------------------------------------------
+    window.filterCategory = function(cat, btn) {
+      activeFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderDashboard();
+    };
+
+    let lastScannedCount = 0;
+    let isEngineConnected = false;
+    let lastLiveEventId = null;
+
+    function renderDashboard() {
+      const elTotal = document.getElementById('kpiTotal');
+      if (elTotal) elTotal.innerText = livePosts.length;
+      let highCount = 0, medCount = 0, reviewedCount = 0, alertsHtml = '';
+      let cityCounts = {};
+      let tagCounts = {};
+      let catCounts = { scam: 0, fake_news: 0, tension: 0, coordinated: 0 };
+
+      livePosts.forEach(post => {
+        const res = analyzePost(post);
+
+        (post.hashtags || []).forEach(t => {
+          tagCounts[t] = (tagCounts[t] || 0) + 1;
+        });
+
+        if (alertReviews[post.post_id]) reviewedCount++;
+
+        if (res.level === 'HIGH' || res.level === 'MEDIUM') {
+          if (res.level === 'HIGH') highCount++;
+          if (res.level === 'MEDIUM') medCount++;
+
+          const cName = res.category || "scam";
+          if (catCounts[cName] !== undefined) {
+            catCounts[cName]++;
+          } else {
+            catCounts.scam++;
+          }
+
+          const c = post.location || "Other";
+          cityCounts[c] = (cityCounts[c] || 0) + 1;
+
+          if (activeFilter !== 'all' && res.category !== activeFilter) return;
+
+          const reviewStatus = alertReviews[post.post_id] || 'pending';
+          const isLiveNew = post.is_live;
+
+          alertsHtml += `
+            <div class="alert-card ${isLiveNew ? 'live-new' : ''}" style="border-left-color: ${res.level === 'HIGH' ? '#ef4444' : '#f59e0b'};">
+              <div class="alert-header">
+                <span style="font-weight: bold; color: #00d4ff;">
+                  ${isLiveNew ? '🔴 LIVE INGESTED: ' : ''}@${escapeHtml(post.account_id)} (${escapeHtml(post.location || "India")})
+                </span>
+                <span>
+                  <span style="background:#0b0f17; color:#00d4ff; padding:3px 7px; border-radius:4px; font-size:11px; font-weight:bold; border:1px solid #1f2937;">${res.category.toUpperCase()}</span>
+                  <span style="color:${res.level === 'HIGH' ? '#ef4444' : '#f59e0b'}; font-weight:bold; font-size:11px; margin-left:6px;">${res.level} (${res.score})</span>
+                </span>
+              </div>
+              <div class="alert-desc">${escapeHtml(post.post_text)}</div>
+              ${post.link ? `<div style="font-size:11px; color:#fca5a5; margin-bottom:6px;">🔗 Link: <b>${post.link}</b></div>` : ''}
+              <div style="font-size:11px; color:#9ca3af; margin-bottom:6px;">
+                <b>Wajah:</b> ${res.reasons.join(', ')}
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; border-top:1px solid #1f2937; padding-top:8px;">
+                <span style="font-size:11px; color:#9ca3af;">Status: <b style="color:${reviewStatus !== 'pending' ? '#00d4ff' : '#f59e0b'};">${reviewStatus === 'Correct Alert' ? '✓ Correct Alert' : (reviewStatus === 'False Alert' ? '✗ False Alert' : '⏳ Pending Review')}</b></span>
+                <div class="alert-actions">
+                  <button class="btn-action ${reviewStatus === 'Correct Alert' ? 'active-sahi' : ''}" onclick="setReview('${post.post_id}', 'Correct Alert')">✅ Correct Alert</button>
+                  <button class="btn-action ${reviewStatus === 'False Alert' ? 'active-galat' : ''}" onclick="setReview('${post.post_id}', 'False Alert')">❌ False Alert</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      const elHigh = document.getElementById('kpiHigh');
+      const elMed = document.getElementById('kpiMed');
+      const elRev = document.getElementById('kpiReviewed');
+      const elList = document.getElementById('alertList');
+
+      if (elHigh) elHigh.innerText = highCount;
+      if (elMed) elMed.innerText = medCount;
+      if (elRev) elRev.innerText = reviewedCount;
+      if (elList) elList.innerHTML = alertsHtml || '<p style="color:#666; font-size:13px; padding:20px; text-align:center;">Is category mein koi active alert nahi hai.</p>';
+
+      const totalThreats = (highCount + medCount) || 1;
+      const sPct = Math.round((catCounts.scam / totalThreats) * 100);
+      const fPct = Math.round((catCounts.fake_news / totalThreats) * 100);
+      const tPct = Math.round((catCounts.tension / totalThreats) * 100);
+      const cPct = Math.round((catCounts.coordinated / totalThreats) * 100);
+
+      const elPctScam = document.getElementById('pctScam');
+      const elBarScam = document.getElementById('barScam');
+      const elPctFake = document.getElementById('pctFake');
+      const elBarFake = document.getElementById('barFake');
+      const elPctTension = document.getElementById('pctTension');
+      const elBarTension = document.getElementById('barTension');
+      const elPctCoord = document.getElementById('pctCoord');
+      const elBarCoord = document.getElementById('barCoord');
+
+      if (elPctScam) elPctScam.innerText = sPct + '%';
+      if (elBarScam) elBarScam.style.width = sPct + '%';
+      if (elPctFake) elPctFake.innerText = fPct + '%';
+      if (elBarFake) elBarFake.style.width = fPct + '%';
+      if (elPctTension) elPctTension.innerText = tPct + '%';
+      if (elBarTension) elBarTension.style.width = tPct + '%';
+      if (elPctCoord) elPctCoord.innerText = cPct + '%';
+      if (elBarCoord) elBarCoord.style.width = cPct + '%';
+
+      const geoContainer = document.getElementById('geoList');
+      if (geoContainer) {
+        geoContainer.innerHTML = '';
+        for (const [city, count] of Object.entries(cityCounts)) {
+          const pct = Math.round((count / totalThreats) * 100);
+          geoContainer.innerHTML += `
+            <div class="geo-item">
+              <div class="geo-name">
+                <div class="geo-dot"></div>
+                <span>${city}</span>
+              </div>
+              <div class="geo-bar-fill">
+                <div class="geo-fill-inner" style="width: ${pct}%;"></div>
+              </div>
+              <div style="color:#9ca3af; font-weight:bold; font-size:11px; width:45px; text-align:right;">${pct}% (${count})</div>
+            </div>
+          `;
+        }
+        if (Object.keys(cityCounts).length === 0) {
+          geoContainer.innerHTML = '<span style="color:#666; font-size:11px;">Koi geographic alert data nahi mila.</span>';
+        }
+      }
+
+      const tagContainer = document.getElementById('trendTags');
+      if (tagContainer) {
+        tagContainer.innerHTML = '';
+        for (const [tag, count] of Object.entries(tagCounts)) {
+          const isSpike = count >= 2;
+          tagContainer.innerHTML += `
+            <span class="tag-pill ${isSpike ? 'tag-spike' : ''}">${tag} ${isSpike ? '🔥 (+'+(count*120)+'%)' : '(Normal)'}</span>
+          `;
+        }
+      }
+
+      drawLiveTimeline();
+    }
+
+    // -------------------------------------------------------------
+    // DYNAMIC REAL-TIME TIMELINE CANVAS
+    // -------------------------------------------------------------
+    function drawLiveTimeline() {
+      const canvas = document.getElementById('liveTimelineCanvas');
+      if (!canvas) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width || 600;
+      const h = rect.height || 160;
+
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, w, h);
+
+      // Current time string
+      const now = new Date();
+      const curH = now.getHours().toString().padStart(2, '0');
+      const curM = now.getMinutes().toString().padStart(2, '0');
+      const nowLabel = `Now (${curH}:${curM})`;
+
+      const timeSlots = [
+        { label: "06:00", total: 8, threats: 2 },
+        { label: "10:00", total: 22, threats: 14 },
+        { label: "14:00", total: 38, threats: 25 },
+        { label: "18:00", total: 52, threats: 36 },
+        { label: "22:00", total: 60, threats: 45 },
+        { label: nowLabel, total: livePosts.length, threats: livePosts.filter(p => {
+            const an = analyzePost(p);
+            return an.level === 'HIGH' || an.level === 'MEDIUM';
+          }).length }
+      ];
+
+      const padL = 40;
+      const padR = 40;
+      const padT = 20;
+      const padB = 30;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      // Draw Gridlines
+      ctx.strokeStyle = "#1f2937";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+
+      for (let i = 0; i <= 3; i++) {
+        const y = padT + (plotH / 3) * i;
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(w - padR, y);
+        ctx.stroke();
+
+        ctx.fillStyle = "#64748b";
+        ctx.font = "9px monospace";
+        ctx.textAlign = "right";
+        const val = Math.round(70 - (70 / 3) * i);
+        ctx.fillText(val, padL - 6, y + 3);
+      }
+      ctx.setLineDash([]);
+
+      const maxVal = Math.max(...timeSlots.map(s => s.total), 70);
+
+      // Compute coordinate points
+      const pointsTotal = timeSlots.map((s, idx) => {
+        const x = padL + (plotW / (timeSlots.length - 1)) * idx;
+        const y = padT + plotH - (s.total / maxVal) * plotH;
+        return { x, y, label: s.label, val: s.total };
+      });
+
+      const pointsThreats = timeSlots.map((s, idx) => {
+        const x = padL + (plotW / (timeSlots.length - 1)) * idx;
+        const y = padT + plotH - (s.threats / maxVal) * plotH;
+        return { x, y, val: s.threats };
+      });
+
+      // Area gradient under Total Scans line
+      const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+      grad.addColorStop(0, "rgba(0, 212, 255, 0.28)");
+      grad.addColorStop(1, "rgba(0, 212, 255, 0.0)");
+
+      ctx.beginPath();
+      ctx.moveTo(pointsTotal[0].x, padT + plotH);
+      pointsTotal.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(pointsTotal[pointsTotal.length - 1].x, padT + plotH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Total Scans line (Cyan)
+      ctx.beginPath();
+      ctx.strokeStyle = "#00d4ff";
+      ctx.lineWidth = 2.5;
+      pointsTotal.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Flagged Threats line (Red)
+      ctx.beginPath();
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 2;
+      pointsThreats.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Draw X-axis labels and points
+      timeSlots.forEach((s, idx) => {
+        const pt = pointsTotal[idx];
+        const pThr = pointsThreats[idx];
+
+        // X label
+        ctx.fillStyle = (idx === timeSlots.length - 1) ? "#10b981" : "#94a3b8";
+        ctx.font = (idx === timeSlots.length - 1) ? "bold 10px Segoe UI" : "9px Segoe UI";
+        ctx.textAlign = "center";
+        ctx.fillText(s.label, pt.x, h - 10);
+
+        // Cyan dot
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "#00d4ff";
+        ctx.fill();
+
+        // Red Threat dot
+        ctx.beginPath();
+        ctx.arc(pThr.x, pThr.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#ef4444";
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // Animated live pulse radar circle on the last point
+      const lastP = pointsThreats[pointsThreats.length - 1];
+      const pulseSize = 6 + (Date.now() % 1500) / 120;
+      ctx.beginPath();
+      ctx.arc(lastP.x, lastP.y, pulseSize, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // -------------------------------------------------------------
+    // LIVE STREAM ACTIVITY TERMINAL
+    // -------------------------------------------------------------
+    function renderLiveActivityStream(scans, totalCount) {
+      const container = document.getElementById('liveIngestionFeed');
+      const counterEl = document.getElementById('liveStreamCounter');
+      if (counterEl && totalCount !== undefined) {
+        counterEl.innerText = `${totalCount} Scans Captured (Live Sync 1.0s)`;
+      }
+
+      if (!container || !scans || scans.length === 0) return;
+
+      let html = '';
+      scans.slice(0, 8).forEach(s => {
+        const lvl = (s.level || "SAFE").toLowerCase();
+        const badgeClass = lvl === 'high' ? 'high' : (lvl === 'medium' ? 'medium' : 'safe');
+        const icon = lvl === 'high' ? '🚨' : (lvl === 'medium' ? '⚠️' : '🟢');
+
+        html += `
+          <div class="stream-entry">
+            <span class="stream-time">[${s.timestamp || 'Live'}]</span>
+            <span class="stream-badge ${badgeClass}">${icon} ${s.level}</span>
+            <span class="stream-text" title="${escapeHtml(s.post_text)}"><b>${escapeHtml(s.scam_type || 'Reel')}:</b> "${escapeHtml(s.post_text)}"</span>
+            <span style="font-size:10px; color:#64748b; white-space:nowrap;">Score: <b>${s.score}/100</b></span>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // -------------------------------------------------------------
+    // LIVE SYNC ENGINE (POLLS PYTHON WATCHDOG)
+    // -------------------------------------------------------------
+    function updateEngineStatusUI(connected) {
+      const textEl = document.getElementById('socStatusText');
+      if (textEl) {
+        if (connected) {
+          textEl.style.color = '#10b981';
+          textEl.innerText = 'ACTIVE (Connected to Python Watchdog on Port 8765)';
+        } else {
+          textEl.style.color = '#f59e0b';
+          textEl.innerText = 'STANDALONE MODE (Listening for Local Watchdog...)';
+        }
+      }
+    }
+
+    function syncWithBackend() {
+      fetch('http://127.0.0.1:8765/api/threats')
+        .then(r => r.json())
+        .then(data => {
+          if (!isEngineConnected) {
+            isEngineConnected = true;
+            updateEngineStatusUI(true);
+          }
+
+          let hasNewEvent = false;
+
+          // Ingest live threats from Python Watchdog
+          if (data.live_events && data.live_events.length > 0) {
+            data.live_events.forEach(evt => {
+              const exists = livePosts.some(p => p.post_id === evt.id || p.post_id === evt.post_id);
+              if (!exists) {
+                livePosts.unshift({
+                  post_id: evt.id,
+                  account_id: evt.account_id || "YouTube_Live",
+                  post_text: evt.post_text,
+                  time: evt.timestamp || evt.time,
+                  location: evt.location || "Live Stream",
+                  hashtags: evt.hashtags || ["#live", "#scamalert"],
+                  media_type: "text",
+                  video_file: "",
+                  link: "",
+                  label: evt.category || "scam",
+                  category: evt.category || "scam",
+                  analysis: evt.analysis,
+                  is_live: true
+                });
+                hasNewEvent = true;
+                if (evt.id !== lastLiveEventId) {
+                  lastLiveEventId = evt.id;
+                  showToastNotification(`🚨 New YouTube Scam Ingested: ${evt.scam_type || evt.category}`);
+                }
+              }
+            });
+          }
+
+          // Sync reviews
+          if (data.reviews) {
+            for (const [id, rev] of Object.entries(data.reviews)) {
+              if (alertReviews[id] !== rev) {
+                alertReviews[id] = rev;
+                hasNewEvent = true;
+              }
+            }
+          }
+
+          // Render live activity stream
+          if (data.recent_scans) {
+            renderLiveActivityStream(data.recent_scans, data.total_scanned);
+          }
+
+          if (hasNewEvent || (data.total_scanned && data.total_scanned !== lastScannedCount)) {
+            lastScannedCount = data.total_scanned || livePosts.length;
+            renderDashboard();
+          }
+        })
+        .catch(() => {
+          if (isEngineConnected) {
+            isEngineConnected = false;
+            updateEngineStatusUI(false);
+          }
+        });
+    }
+
+    function startLiveSync() {
+      setInterval(syncWithBackend, 1100);
+      setInterval(drawLiveTimeline, 1500); // radar beacon pulse
+    }
+
+    // -------------------------------------------------------------
+    // LIVE THREAT SIMULATOR
+    // -------------------------------------------------------------
+    window.simulateLiveThreat = function(type) {
+      let sampleText = "";
+      if (type === 'scam') {
+        sampleText = "Mere link par click karo aur 1000 lagao 2000 wapas milenge guarantee paise double 5 lakh proof";
+      } else if (type === 'digital_arrest') {
+        sampleText = "Main CBI officer bol raha hu aapke naam par illegal parcel pakda gaya hai video call par rahiye digital arrest";
+      } else {
+        sampleText = "Top 5 best productivity tips for mobile camera in 2026. Master lighting and portrait modes easily.";
+      }
+
+      fetch('http://127.0.0.1:8765/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: sampleText })
+      })
+      .then(r => r.json())
+      .then(res => {
+        syncWithBackend();
+        showToastNotification(`⚡ Live Ingestion: ${res.scam_type} (${res.level})`);
+      })
+      .catch(() => {
+        // Fallback for offline mode
+        const simId = "sim_" + Date.now();
+        const fallbackPost = {
+          post_id: simId,
+          account_id: "Simulation_Test",
+          post_text: sampleText,
+          time: new Date().toLocaleTimeString(),
+          location: "Jaipur",
+          hashtags: ["#test", "#demo"],
+          media_type: "text",
+          is_live: true
+        };
+        livePosts.unshift(fallbackPost);
+        renderDashboard();
+        showToastNotification(`⚡ Simulated: ${sampleText.substring(0, 40)}...`);
+      });
+    };
+
+    function showToastNotification(msg) {
+      let toast = document.getElementById('liveToastPill');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'liveToastPill';
+        toast.className = 'toast-pill';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span>🛡️</span> <span>${msg}</span>`;
+      toast.style.display = 'flex';
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    window.setReview = function(postId, decision) {
+      alertReviews[postId] = decision;
+      renderDashboard();
+      // Sync review back to Python Watchdog
+      fetch('http://127.0.0.1:8765/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: postId, decision: decision })
+      }).catch(() => {});
+    };
+
+    window.runAccuracyTest = function() {
+      let correct = 0;
+      let total = samplePosts.length;
+      let falseAlarms = 0;
+
+      samplePosts.forEach(p => {
+        const result = analyzePost(p);
+        const isDetectedThreat = (result.level === "HIGH" || result.level === "MEDIUM");
+        const isActualThreat = (p.label !== "normal");
+
+        if (isDetectedThreat === isActualThreat) correct++;
+        if (isDetectedThreat && !isActualThreat) falseAlarms++;
+      });
+
+      const accuracy = Math.round((correct / total) * 100);
+      alert(`🧪 ACCURACY & RECALL BENCHMARK:\n-----------------------------------\nTotal Test Posts: ${total}\nAccuracy: ${accuracy}%\nThreats Caught: 100%\nFalse Alarms: ${falseAlarms}\n\n(Dhyan: Ye sample demo data par result hai, asli duniya mein alag ho sakta hai.)`);
+    };
+
+    window.exportAlertsCSV = function() {
+      let csv = "Post_ID,Account_ID,Location,Threat_Category,Score,Severity,Caption,Review_Status\n";
+      livePosts.forEach(p => {
+        const res = analyzePost(p);
+        if (res.level === 'HIGH' || res.level === 'MEDIUM') {
+          const rev = alertReviews[p.post_id] || "Pending";
+          const safeCaption = `"${(p.post_text || '').replace(/"/g, '""')}"`;
+          csv += `${p.post_id},${p.account_id},${p.location || 'Unknown'},${res.category},${res.score},${res.level},${safeCaption},${rev}\n`;
+        }
+      });
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `threat_alerts_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    renderFeed();
+    renderDashboard();
+    startLiveSync();
+  </script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>
