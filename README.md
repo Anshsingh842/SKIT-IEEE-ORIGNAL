@@ -4,7 +4,13 @@
 
 Built for **SKIT004 — AI-Based Social Media Threat Monitoring System** · Team entry for IEEE / IGINTE.
 
-> **Live demo link:** _not published yet — coming soon._ For now, run it locally (see [Getting Started](#getting-started)).
+> **Live demo link:** 
+
+
+https://skit-ieee-orignal.onrender.com/
+
+
+SKIT HACKETHON CYBERSEURITY LIVE DEMO LINK
 
 ---
 
