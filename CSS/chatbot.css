@@ -1,0 +1,323 @@
+/* 
+ * chatbot.css - Corner Floating "AI Chowkidaar" Assistant & Real-Time Reel Watchdog
+ */
+
+/* Floating Bot Launcher (Bottom Right) */
+.chowkidaar-launcher {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.chowkidaar-avatar-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff, #2563eb);
+  border: 2px solid #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4), 0 0 15px rgba(37, 99, 235, 0.4);
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+
+.chowkidaar-avatar-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 28px rgba(0, 212, 255, 0.6), 0 0 20px rgba(0, 212, 255, 0.6);
+}
+
+.chowkidaar-status-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #0b0f17;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.chowkidaar-status-dot.danger {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+  animation: pulse-danger 1s infinite alternate;
+}
+
+@keyframes pulse-danger {
+  from { transform: scale(0.9); opacity: 0.8; }
+  to { transform: scale(1.2); opacity: 1; }
+}
+
+/* Proactive Speech Bubble Notification (Appears when Reel changes) */
+.chowkidaar-bubble-alert {
+  background: #111827;
+  border: 1px solid #1f2937;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  max-width: 260px;
+  line-height: 1.4;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chowkidaar-bubble-alert.threat {
+  border-color: #ef4444;
+  background: #1f1215;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.chowkidaar-bubble-alert.safe {
+  border-color: #10b981;
+  background: #0f1c18;
+}
+
+.chowkidaar-bubble-title {
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chowkidaar-bubble-title.threat { color: #ef4444; }
+.chowkidaar-bubble-title.safe { color: #10b981; }
+
+/* The Main Chatbot Window */
+.chowkidaar-chat-window {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  width: 360px;
+  height: 520px;
+  max-height: 80vh;
+  background: #0d131f;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 212, 255, 0.15);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  backdrop-filter: blur(12px);
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chowkidaar-chat-window.open {
+  display: flex;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Chat Header */
+.chowkidaar-chat-header {
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chowkidaar-chat-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chowkidaar-chat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.chowkidaar-chat-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chowkidaar-chat-sub {
+  font-size: 11px;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chowkidaar-btn-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.chowkidaar-btn-close:hover {
+  color: #fff;
+  background: #1f2937;
+}
+
+/* Chat Messages Container */
+.chowkidaar-chat-messages {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chowkidaar-chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+.chowkidaar-chat-messages::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 2px;
+}
+
+.msg-row {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+
+.msg-row.bot {
+  align-self: flex-start;
+}
+
+.msg-row.user {
+  align-self: flex-end;
+}
+
+.msg-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.msg-row.bot .msg-bubble {
+  background: #162032;
+  border: 1px solid #1f2937;
+  color: #e2e8f0;
+  border-top-left-radius: 4px;
+}
+
+.msg-row.user .msg-bubble {
+  background: linear-gradient(135deg, #00d4ff, #2563eb);
+  color: #0b0f17;
+  font-weight: 600;
+  border-top-right-radius: 4px;
+}
+
+.msg-time {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 3px;
+  padding: 0 4px;
+}
+.msg-row.user .msg-time { text-align: right; }
+
+/* Quick Action Suggestion Chips */
+.chowkidaar-chips-wrapper {
+  padding: 6px 14px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  background: #0b0f17;
+  border-top: 1px solid #1a2234;
+  scrollbar-width: none;
+}
+.chowkidaar-chips-wrapper::-webkit-scrollbar { display: none; }
+
+.chip-btn {
+  background: #162032;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: #38bdf8;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chip-btn:hover {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: #00d4ff;
+  color: #fff;
+}
+
+/* Chat Input Form */
+.chowkidaar-chat-input-bar {
+  background: #111827;
+  border-top: 1px solid #1f2937;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chowkidaar-input {
+  flex: 1;
+  background: #0b0f17;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 12px;
+  outline: none;
+}
+.chowkidaar-input:focus {
+  border-color: #00d4ff;
+}
+
+.chowkidaar-btn-send {
+  background: #00d4ff;
+  color: #000;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+}
+.chowkidaar-btn-send:hover {
+  background: #38bdf8;
+  transform: scale(1.05);
+}
